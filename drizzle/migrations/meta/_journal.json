@@ -15,6 +15,13 @@
       "when": 1794657985752,
       "tag": "0001_lock_down_functions",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "7",
+      "when": 1794658175353,
+      "tag": "0002_owner_email_admin",
+      "breakpoints": true
     }
   ]
 }
