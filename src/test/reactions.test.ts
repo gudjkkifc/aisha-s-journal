@@ -17,7 +17,7 @@ describe("line reactions", () => {
   it("puts a reaction on the exact line it was given to", () => {
     const lines = splitLines("Hello\nToday was great\nBye");
     const { chips, orphans } = placeReactions(lines, [r({ line_index: 1, line_text: "Today was great" })]);
-    expect(chips.get(1)?.[0].emoji).toBe("🩷");
+    expect(chips.get(1)?.[0]?.emoji).toBe("🩷");
     expect(chips.has(0)).toBe(false);
     expect(orphans).toHaveLength(0);
   });
@@ -25,7 +25,7 @@ describe("line reactions", () => {
   it("follows the line when the writer adds text above it", () => {
     const lines = splitLines("New first line\nHello\nToday was great");
     const { chips } = placeReactions(lines, [r({ line_index: 1, line_text: "Today was great" })]);
-    expect(chips.get(2)?.[0].emoji).toBe("🩷");
+    expect(chips.get(2)?.[0]?.emoji).toBe("🩷");
     expect(chips.has(1)).toBe(false);
   });
 
