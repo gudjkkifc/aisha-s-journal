@@ -28,3 +28,10 @@ use the editor.
   own key and store it in Secrets.
 - **Secrets.** Lovable manages them. Do not put secret values in the repo.
 <!-- LOVABLE:END -->
+
+## Project rules
+
+- Data access goes through the browser Supabase client with RLS as the guard (entries, profiles, storage); why: entry privacy is enforced in the database, not in UI code.
+- Admin status lives only in `public.user_roles` and is checked with `has_role()`; why: prevents privilege escalation via editable profile data.
+- Photos and avatars live in the private `journal-media` bucket under `<user_id>/...` and are shown via signed URLs; why: storage policies key on the first folder segment.
+- Signed-in pages live under `src/routes/_authenticated/`; auth state comes from the single `AuthProvider` in `src/lib/auth.tsx`; why: one auth listener, one gate.
