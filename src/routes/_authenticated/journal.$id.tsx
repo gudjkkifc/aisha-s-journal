@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { EntryEditor } from "@/components/EntryEditor";
 import { PhotoGrid } from "@/components/PhotoGrid";
+import { ReactableBody } from "@/components/ReactableBody";
 import {
   AlertDialog,
   AlertDialogAction,
@@ -20,7 +21,9 @@ import {
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { useIsAdmin } from "@/lib/auth";
 import { entryQuery, formatEntryDate, removeMedia } from "@/lib/journal";
+import { entryReactionsQuery } from "@/lib/reactions";
 
 export const Route = createFileRoute("/_authenticated/journal/$id")({
   head: () => ({
@@ -44,6 +47,8 @@ function EntryPage() {
   const queryClient = useQueryClient();
   const [editing, setEditing] = useState(false);
   const { data: entry, isLoading } = useQuery(entryQuery(id));
+  const { data: isAdmin } = useIsAdmin();
+  const { data: reactions } = useQuery(entryReactionsQuery(id));
 
   async function deleteEntry() {
     if (!entry) return;
@@ -91,7 +96,14 @@ function EntryPage() {
             </h1>
           </div>
           {entry.body && (
-            <div className="ruled-paper whitespace-pre-wrap border-y px-5 py-1 text-base sm:px-8">{entry.body}</div>
+            <ReactableBody
+              entryId={entry.id}
+              body={entry.body}
+              reactions={reactions ?? []}
+              canReact={!!isAdmin}
+              userId={user.id}
+              className="ruled-paper border-y px-5 py-1 text-base sm:px-8"
+            />
           )}
           <div className="space-y-6 p-5 sm:p-8">
             <PhotoGrid paths={entry.photo_paths} />

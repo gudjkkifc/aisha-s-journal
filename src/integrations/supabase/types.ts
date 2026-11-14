@@ -55,6 +55,44 @@ export type Database = {
           },
         ]
       }
+      entry_reactions: {
+        Row: {
+          created_at: string
+          emoji: string
+          entry_id: string
+          id: string
+          line_index: number
+          line_text: string
+          reactor_id: string
+        }
+        Insert: {
+          created_at?: string
+          emoji: string
+          entry_id: string
+          id?: string
+          line_index: number
+          line_text?: string
+          reactor_id?: string
+        }
+        Update: {
+          created_at?: string
+          emoji?: string
+          entry_id?: string
+          id?: string
+          line_index?: number
+          line_text?: string
+          reactor_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "entry_reactions_entry_id_fkey"
+            columns: ["entry_id"]
+            isOneToOne: false
+            referencedRelation: "entries"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       profiles: {
         Row: {
           avatar_path: string | null
@@ -102,6 +140,21 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      admin_list_users: {
+        Args: never
+        Returns: {
+          avatar_path: string
+          display_name: string
+          email: string
+          entry_count: number
+          id: string
+          is_admin: boolean
+          joined_at: string
+          last_active_at: string
+          last_sign_in_at: string
+          signed_in: boolean
+        }[]
+      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
