@@ -1,6 +1,6 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { Camera, PenLine } from "lucide-react";
+import { CalendarDays, Camera, ListChecks, Mic, PenLine } from "lucide-react";
 
 import { Heart } from "@/components/Heart";
 import { Button } from "@/components/ui/button";
@@ -37,11 +37,23 @@ function JournalList() {
             {entries ? `${entries.length} ${entries.length === 1 ? "entry" : "entries"}` : " "}
           </p>
         </div>
-        <Button asChild variant="hero">
-          <Link to="/journal/new">
-            <PenLine /> New entry
-          </Link>
-        </Button>
+        <div className="flex flex-wrap gap-2">
+          <Button asChild variant="soft">
+            <Link to="/calendar">
+              <CalendarDays /> Calendar
+            </Link>
+          </Button>
+          <Button asChild variant="soft">
+            <Link to="/bucket-list">
+              <ListChecks /> Bucket list
+            </Link>
+          </Button>
+          <Button asChild variant="hero">
+            <Link to="/journal/new">
+              <PenLine /> New entry
+            </Link>
+          </Button>
+        </div>
       </div>
 
       {isLoading ? (
@@ -101,11 +113,19 @@ function EntryCard({ entry }: { entry: Entry }) {
           <span className="truncate">{entry.title || "Untitled"}</span>
         </h2>
         {entry.body && <p className="mt-1 line-clamp-2 text-sm text-muted-foreground">{entry.body}</p>}
-        {entry.photo_paths.length > 1 && (
-          <p className="mt-2 inline-flex items-center gap-1 text-xs text-muted-foreground">
-            <Camera className="h-3.5 w-3.5" /> {entry.photo_paths.length} photos
-          </p>
-        )}
+        <div className="mt-2 flex flex-wrap gap-3 text-xs text-muted-foreground">
+          {(entry.audio_paths?.length ?? 0) > 0 && (
+            <span className="inline-flex items-center gap-1 text-primary">
+              <Mic className="h-3.5 w-3.5" /> {entry.audio_paths.length} voice{" "}
+              {entry.audio_paths.length === 1 ? "note" : "notes"}
+            </span>
+          )}
+          {entry.photo_paths.length > 1 && (
+            <span className="inline-flex items-center gap-1">
+              <Camera className="h-3.5 w-3.5" /> {entry.photo_paths.length} photos
+            </span>
+          )}
+        </div>
       </div>
     </Link>
   );

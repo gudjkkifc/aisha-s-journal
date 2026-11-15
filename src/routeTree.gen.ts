@@ -14,6 +14,8 @@ import { Route as AuthenticatedRouteRouteImport } from './routes/_authenticated/
 import { Route as AuthRouteImport } from './routes/auth'
 import { Route as ResetPasswordRouteImport } from './routes/reset-password'
 import { Route as AuthenticatedAdminRouteImport } from './routes/_authenticated/admin'
+import { Route as AuthenticatedBucketListRouteImport } from './routes/_authenticated/bucket-list'
+import { Route as AuthenticatedCalendarRouteImport } from './routes/_authenticated/calendar'
 import { Route as AuthenticatedProfileRouteImport } from './routes/_authenticated/profile'
 import { Route as AuthenticatedJournalIndexRouteImport } from './routes/_authenticated/journal.index'
 import { Route as AuthenticatedJournalIdRouteImport } from './routes/_authenticated/journal.$id'
@@ -43,6 +45,16 @@ const AuthenticatedAdminRoute = AuthenticatedAdminRouteImport.update({
   path: '/admin',
   getParentRoute: () => AuthenticatedRouteRoute,
 } as any)
+const AuthenticatedBucketListRoute = AuthenticatedBucketListRouteImport.update({
+  id: '/bucket-list',
+  path: '/bucket-list',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
+const AuthenticatedCalendarRoute = AuthenticatedCalendarRouteImport.update({
+  id: '/calendar',
+  path: '/calendar',
+  getParentRoute: () => AuthenticatedRouteRoute,
+} as any)
 const AuthenticatedProfileRoute = AuthenticatedProfileRouteImport.update({
   id: '/profile',
   path: '/profile',
@@ -70,6 +82,8 @@ export interface FileRoutesByFullPath {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/bucket-list': typeof AuthenticatedBucketListRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/journal/$id': typeof AuthenticatedJournalIdRoute
   '/journal/new': typeof AuthenticatedJournalNewRoute
@@ -80,6 +94,8 @@ export interface FileRoutesByTo {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/admin': typeof AuthenticatedAdminRoute
+  '/bucket-list': typeof AuthenticatedBucketListRoute
+  '/calendar': typeof AuthenticatedCalendarRoute
   '/profile': typeof AuthenticatedProfileRoute
   '/journal/$id': typeof AuthenticatedJournalIdRoute
   '/journal/new': typeof AuthenticatedJournalNewRoute
@@ -92,6 +108,8 @@ export interface FileRoutesById {
   '/auth': typeof AuthRoute
   '/reset-password': typeof ResetPasswordRoute
   '/_authenticated/admin': typeof AuthenticatedAdminRoute
+  '/_authenticated/bucket-list': typeof AuthenticatedBucketListRoute
+  '/_authenticated/calendar': typeof AuthenticatedCalendarRoute
   '/_authenticated/profile': typeof AuthenticatedProfileRoute
   '/_authenticated/journal/$id': typeof AuthenticatedJournalIdRoute
   '/_authenticated/journal/new': typeof AuthenticatedJournalNewRoute
@@ -104,6 +122,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/admin'
+    | '/bucket-list'
+    | '/calendar'
     | '/profile'
     | '/journal/$id'
     | '/journal/new'
@@ -114,6 +134,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/admin'
+    | '/bucket-list'
+    | '/calendar'
     | '/profile'
     | '/journal/$id'
     | '/journal/new'
@@ -125,6 +147,8 @@ export interface FileRouteTypes {
     | '/auth'
     | '/reset-password'
     | '/_authenticated/admin'
+    | '/_authenticated/bucket-list'
+    | '/_authenticated/calendar'
     | '/_authenticated/profile'
     | '/_authenticated/journal/$id'
     | '/_authenticated/journal/new'
@@ -175,6 +199,20 @@ declare module '@tanstack/react-router' {
       preLoaderRoute: typeof AuthenticatedAdminRouteImport
       parentRoute: typeof AuthenticatedRouteRoute
     }
+    '/_authenticated/bucket-list': {
+      id: '/_authenticated/bucket-list'
+      path: '/bucket-list'
+      fullPath: '/bucket-list'
+      preLoaderRoute: typeof AuthenticatedBucketListRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
+    '/_authenticated/calendar': {
+      id: '/_authenticated/calendar'
+      path: '/calendar'
+      fullPath: '/calendar'
+      preLoaderRoute: typeof AuthenticatedCalendarRouteImport
+      parentRoute: typeof AuthenticatedRouteRoute
+    }
     '/_authenticated/profile': {
       id: '/_authenticated/profile'
       path: '/profile'
@@ -208,6 +246,8 @@ declare module '@tanstack/react-router' {
 
 interface AuthenticatedRouteRouteChildren {
   AuthenticatedAdminRoute: typeof AuthenticatedAdminRoute
+  AuthenticatedBucketListRoute: typeof AuthenticatedBucketListRoute
+  AuthenticatedCalendarRoute: typeof AuthenticatedCalendarRoute
   AuthenticatedProfileRoute: typeof AuthenticatedProfileRoute
   AuthenticatedJournalIdRoute: typeof AuthenticatedJournalIdRoute
   AuthenticatedJournalNewRoute: typeof AuthenticatedJournalNewRoute
@@ -216,6 +256,8 @@ interface AuthenticatedRouteRouteChildren {
 
 const AuthenticatedRouteRouteChildren: AuthenticatedRouteRouteChildren = {
   AuthenticatedAdminRoute: AuthenticatedAdminRoute,
+  AuthenticatedBucketListRoute: AuthenticatedBucketListRoute,
+  AuthenticatedCalendarRoute: AuthenticatedCalendarRoute,
   AuthenticatedProfileRoute: AuthenticatedProfileRoute,
   AuthenticatedJournalIdRoute: AuthenticatedJournalIdRoute,
   AuthenticatedJournalNewRoute: AuthenticatedJournalNewRoute,

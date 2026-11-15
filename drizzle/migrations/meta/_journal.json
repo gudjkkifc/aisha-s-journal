@@ -29,6 +29,13 @@
       "when": 1794659756271,
       "tag": "0003_admin_users_and_line_reactions",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "7",
+      "when": 1794729896703,
+      "tag": "0004_voice_notes_calendar_bucket_list",
+      "breakpoints": true
     }
   ]
 }

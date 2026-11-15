@@ -6,6 +6,7 @@ import { toast } from "sonner";
 
 import { EntryEditor } from "@/components/EntryEditor";
 import { PhotoGrid } from "@/components/PhotoGrid";
+import { VoiceNotes } from "@/components/VoiceNotes";
 import { ReactableBody } from "@/components/ReactableBody";
 import {
   AlertDialog,
@@ -57,7 +58,7 @@ function EntryPage() {
       toast.error(error.message);
       return;
     }
-    await removeMedia(entry.photo_paths);
+    await removeMedia([...entry.photo_paths, ...(entry.audio_paths ?? [])]);
     queryClient.invalidateQueries({ queryKey: ["entries"] });
     toast.success("Entry deleted");
     navigate({ to: "/journal" });
@@ -106,6 +107,7 @@ function EntryPage() {
             />
           )}
           <div className="space-y-6 p-5 sm:p-8">
+            <VoiceNotes paths={entry.audio_paths ?? []} />
             <PhotoGrid paths={entry.photo_paths} />
             {entry.user_id === user.id && (
               <div className="flex flex-wrap justify-end gap-2">
@@ -118,7 +120,7 @@ function EntryPage() {
                   <AlertDialogContent>
                     <AlertDialogHeader>
                       <AlertDialogTitle>Delete this entry?</AlertDialogTitle>
-                      <AlertDialogDescription>The writing and its photos will be gone for good.</AlertDialogDescription>
+                      <AlertDialogDescription>The writing, photos and voice notes will be gone for good.</AlertDialogDescription>
                     </AlertDialogHeader>
                     <AlertDialogFooter>
                       <AlertDialogCancel>Keep it</AlertDialogCancel>

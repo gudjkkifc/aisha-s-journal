@@ -1,21 +1,26 @@
 import { useEffect, useMemo, useRef, useState } from "react";
-import { ImagePlus, Loader2, X } from "lucide-react";
+import { ImagePlus, Loader2, Trash2, X } from "lucide-react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
+import { VoiceNotePlayer } from "@/components/VoiceNotes";
+import { VoiceRecorder } from "@/components/VoiceRecorder";
 import { supabase } from "@/integrations/supabase/client";
 import {
+  MAX_PHOTO_BYTES,
   MAX_PHOTOS,
   MOODS,
   removeMedia,
   uploadMedia,
+  uploadVoiceNote,
   useSignedUrls,
   validatePhoto,
   type Entry,
 } from "@/lib/journal";
 import { cn } from "@/lib/utils";
+import { MAX_VOICE_NOTES } from "@/lib/voice";
 
 type Props = {
   userId: string;
@@ -30,14 +35,28 @@ export function EntryEditor({ userId, entry, onSaved, onCancel }: Props) {
   const [mood, setMood] = useState<string | null>(entry?.mood ?? null);
   const [keptPaths, setKeptPaths] = useState<string[]>(entry?.photo_paths ?? []);
   const [newFiles, setNewFiles] = useState<File[]>([]);
+  const [keptAudio, setKeptAudio] = useState<string[]>(entry?.audio_paths ?? []);
+  const [newAudio, setNewAudio] = useState<Blob[]>([]);
   const [saving, setSaving] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
 
   const { data: signed } = useSignedUrls(keptPaths);
+  const { data: signedAudio } = useSignedUrls(keptAudio);
   const previews = useMemo(() => newFiles.map((f) => URL.createObjectURL(f)), [newFiles]);
   useEffect(() => () => previews.forEach((u) => URL.revokeObjectURL(u)), [previews]);
+  const audioPreviews = useMemo(() => newAudio.map((b) => URL.createObjectURL(b)), [newAudio]);
+  useEffect(() => () => audioPreviews.forEach((u) => URL.revokeObjectURL(u)), [audioPreviews]);
 
   const total = keptPaths.length + newFiles.length;
+  const totalAudio = keptAudio.length + newAudio.length;
+
+  function addRecording(blob: Blob) {
+    if (blob.size > MAX_PHOTO_BYTES) {
+      toast.error("That recording is too large to save. Try a shorter one.");
+      return;
+    }
+    setNewAudio((prev) => (prev.length + keptAudio.length >= MAX_VOICE_NOTES ? prev : [...prev, blob]));
+  }
 
   function addFiles(list: FileList | null) {
     if (!list) return;
@@ -58,19 +77,31 @@ export function EntryEditor({ userId, entry, onSaved, onCancel }: Props) {
 
   async function save(e: React.FormEvent) {
     e.preventDefault();
-    if (!title.trim() && !body.trim() && total === 0) {
-      toast.error("Write something or add a photo first 🩷");
+    if (!title.trim() && !body.trim() && total === 0 && totalAudio === 0) {
+      toast.error("Write something, record a voice note or add a photo first 🩷");
       return;
     }
     setSaving(true);
     const uploaded: string[] = [];
     try {
-      for (const file of newFiles) uploaded.push(await uploadMedia(userId, file));
+      const photoUploads: string[] = [];
+      for (const file of newFiles) {
+        const path = await uploadMedia(userId, file);
+        uploaded.push(path);
+        photoUploads.push(path);
+      }
+      const audioUploads: string[] = [];
+      for (const blob of newAudio) {
+        const path = await uploadVoiceNote(userId, blob);
+        uploaded.push(path);
+        audioUploads.push(path);
+      }
       const payload = {
         title: title.trim(),
         body: body.trim(),
         mood,
-        photo_paths: [...keptPaths, ...uploaded],
+        photo_paths: [...keptPaths, ...photoUploads],
+        audio_paths: [...keptAudio, ...audioUploads],
       };
       const query = entry
         ? supabase.from("entries").update(payload).eq("id", entry.id).select().single()
@@ -83,7 +114,8 @@ export function EntryEditor({ userId, entry, onSaved, onCancel }: Props) {
       if (error) throw error;
       if (entry) {
         const removed = entry.photo_paths.filter((p) => !keptPaths.includes(p));
-        await removeMedia(removed);
+        const removedAudio = (entry.audio_paths ?? []).filter((p) => !keptAudio.includes(p));
+        await removeMedia([...removed, ...removedAudio]);
       }
       toast.success(entry ? "Entry updated" : "Saved to your journal 🩷");
       onSaved(data as Entry);
@@ -140,6 +172,25 @@ export function EntryEditor({ userId, entry, onSaved, onCancel }: Props) {
       />
 
       <div className="space-y-4 p-5 sm:p-7">
+        <div className="space-y-2">
+          {keptAudio.map((p, i) => (
+            <VoiceNotePlayer key={p} label={`Voice note ${i + 1}`} src={signedAudio?.[p]}>
+              <RemoveAudio onClick={() => setKeptAudio((prev) => prev.filter((x) => x !== p))} />
+            </VoiceNotePlayer>
+          ))}
+          {audioPreviews.map((src, i) => (
+            <VoiceNotePlayer key={src} label={`Voice note ${keptAudio.length + i + 1} · new`} src={src}>
+              <RemoveAudio onClick={() => setNewAudio((prev) => prev.filter((_, idx) => idx !== i))} />
+            </VoiceNotePlayer>
+          ))}
+          <div className="flex flex-wrap items-center gap-2">
+            <VoiceRecorder onRecorded={addRecording} disabled={totalAudio >= MAX_VOICE_NOTES || saving} />
+            <span className="text-xs text-muted-foreground">
+              {totalAudio}/{MAX_VOICE_NOTES} voice notes · up to 10 min each
+            </span>
+          </div>
+        </div>
+
         {total > 0 && (
           <div className="grid grid-cols-3 gap-3 sm:grid-cols-6">
             {keptPaths.map((p) => (
@@ -195,6 +246,21 @@ export function EntryEditor({ userId, entry, onSaved, onCancel }: Props) {
         </div>
       </div>
     </form>
+  );
+}
+
+function RemoveAudio({ onClick }: { onClick: () => void }) {
+  return (
+    <Button
+      type="button"
+      variant="ghost"
+      size="icon"
+      onClick={onClick}
+      aria-label="Remove voice note"
+      className="shrink-0 text-muted-foreground hover:text-destructive"
+    >
+      <Trash2 />
+    </Button>
   );
 }
 

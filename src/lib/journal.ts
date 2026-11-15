@@ -1,6 +1,7 @@
 import { useQuery } from "@tanstack/react-query";
 
 import { supabase } from "@/integrations/supabase/client";
+import { audioExtension } from "@/lib/voice";
 
 export const MEDIA_BUCKET = "journal-media";
 export const MAX_PHOTOS = 6;
@@ -21,6 +22,16 @@ export async function uploadMedia(userId: string, file: File, prefix = "") {
   const { error } = await supabase.storage
     .from(MEDIA_BUCKET)
     .upload(path, file, { contentType: file.type, upsert: false });
+  if (error) throw error;
+  return path;
+}
+
+export async function uploadVoiceNote(userId: string, blob: Blob) {
+  const type = blob.type.split(";")[0] || "audio/webm";
+  const path = `${userId}/voice-${crypto.randomUUID()}.${audioExtension(type)}`;
+  const { error } = await supabase.storage
+    .from(MEDIA_BUCKET)
+    .upload(path, blob, { contentType: type, upsert: false });
   if (error) throw error;
   return path;
 }
@@ -56,6 +67,7 @@ export type Entry = {
   body: string;
   mood: string | null;
   photo_paths: string[];
+  audio_paths: string[];
   created_at: string;
   updated_at: string;
 };

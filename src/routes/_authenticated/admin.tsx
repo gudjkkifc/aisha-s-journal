@@ -1,11 +1,13 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookHeart, Camera, Search, ShieldCheck, Trash2, Users } from "lucide-react";
+import { BookHeart, Camera, ListChecks, Search, ShieldCheck, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
+import { AdminPlans } from "@/components/AdminPlans";
 import { AdminUsers } from "@/components/AdminUsers";
 import { PhotoGrid } from "@/components/PhotoGrid";
+import { VoiceNotes } from "@/components/VoiceNotes";
 import { ReactableBody } from "@/components/ReactableBody";
 import { UserAvatar } from "@/components/UserAvatar";
 import {
@@ -90,7 +92,7 @@ function AdminPage() {
       toast.error(error.message);
       return;
     }
-    await removeMedia(entry.photo_paths);
+    await removeMedia([...entry.photo_paths, ...(entry.audio_paths ?? [])]);
     queryClient.invalidateQueries({ queryKey: ["entries"] });
     toast.success("Entry removed");
   }
@@ -109,14 +111,21 @@ function AdminPage() {
       </div>
 
       <Tabs defaultValue="entries">
-        <TabsList className="mb-6 h-10 rounded-full bg-secondary">
+        <TabsList className="mb-6 h-auto flex-wrap rounded-full bg-secondary">
           <TabsTrigger value="entries" className="rounded-full px-4">
             <BookHeart /> Entries
           </TabsTrigger>
           <TabsTrigger value="users" className="rounded-full px-4">
             <Users /> Users
           </TabsTrigger>
+          <TabsTrigger value="plans" className="rounded-full px-4">
+            <ListChecks /> Plans &amp; lists
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="plans">
+          <AdminPlans />
+        </TabsContent>
 
         <TabsContent value="users">
           <AdminUsers />
@@ -204,7 +213,7 @@ function AdminPage() {
                         <AlertDialogHeader>
                           <AlertDialogTitle>Remove this entry?</AlertDialogTitle>
                           <AlertDialogDescription>
-                            This permanently deletes the entry and its photos for{" "}
+                            This permanently deletes the entry, its photos and voice notes for{" "}
                             {entry.profiles?.display_name || "this writer"}.
                           </AlertDialogDescription>
                         </AlertDialogHeader>
@@ -234,6 +243,7 @@ function AdminPage() {
                       className="mt-2 text-sm leading-relaxed"
                     />
                   )}
+                  <VoiceNotes paths={entry.audio_paths ?? []} className="mt-4" />
                   <PhotoGrid paths={entry.photo_paths} className="mt-4 sm:grid-cols-4" />
                 </li>
               ))}

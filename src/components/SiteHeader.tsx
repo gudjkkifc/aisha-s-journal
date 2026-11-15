@@ -1,6 +1,6 @@
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
-import { BookHeart, LogOut, ShieldCheck, UserRound } from "lucide-react";
+import { BookHeart, CalendarDays, ListChecks, LogOut, ShieldCheck, UserRound } from "lucide-react";
 
 import { Heart } from "@/components/Heart";
 import { UserAvatar } from "@/components/UserAvatar";
@@ -37,13 +37,23 @@ export function SiteHeader() {
 
         {loading ? null : user ? (
           <div className="flex items-center gap-1">
-            <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+            <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
               <Link to="/journal">
                 <BookHeart /> My journal
               </Link>
             </Button>
+            <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
+              <Link to="/calendar">
+                <CalendarDays /> Calendar
+              </Link>
+            </Button>
+            <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
+              <Link to="/bucket-list">
+                <ListChecks /> Bucket list
+              </Link>
+            </Button>
             {isAdmin && (
-              <Button asChild variant="ghost" size="sm" className="hidden sm:inline-flex">
+              <Button asChild variant="ghost" size="sm" className="hidden md:inline-flex">
                 <Link to="/admin">
                   <ShieldCheck /> Admin
                 </Link>
@@ -65,6 +75,16 @@ export function SiteHeader() {
                 <DropdownMenuItem asChild>
                   <Link to="/journal">
                     <BookHeart /> My journal
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/calendar">
+                    <CalendarDays /> Calendar
+                  </Link>
+                </DropdownMenuItem>
+                <DropdownMenuItem asChild>
+                  <Link to="/bucket-list">
+                    <ListChecks /> Bucket list
                   </Link>
                 </DropdownMenuItem>
                 {isAdmin && (

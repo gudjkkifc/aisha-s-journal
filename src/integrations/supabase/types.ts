@@ -14,8 +14,88 @@ export type Database = {
   }
   public: {
     Tables: {
+      bucket_items: {
+        Row: {
+          created_at: string
+          done: boolean
+          done_at: string | null
+          id: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          done?: boolean
+          done_at?: string | null
+          id?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          done?: boolean
+          done_at?: string | null
+          id?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "bucket_items_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      calendar_events: {
+        Row: {
+          created_at: string
+          event_date: string
+          event_time: string | null
+          id: string
+          notes: string
+          title: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          created_at?: string
+          event_date: string
+          event_time?: string | null
+          id?: string
+          notes?: string
+          title: string
+          updated_at?: string
+          user_id: string
+        }
+        Update: {
+          created_at?: string
+          event_date?: string
+          event_time?: string | null
+          id?: string
+          notes?: string
+          title?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "calendar_events_user_id_fkey"
+            columns: ["user_id"]
+            isOneToOne: false
+            referencedRelation: "profiles"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       entries: {
         Row: {
+          audio_paths: string[]
           body: string
           created_at: string
           id: string
@@ -26,6 +106,7 @@ export type Database = {
           user_id: string
         }
         Insert: {
+          audio_paths?: string[]
           body?: string
           created_at?: string
           id?: string
@@ -36,6 +117,7 @@ export type Database = {
           user_id: string
         }
         Update: {
+          audio_paths?: string[]
           body?: string
           created_at?: string
           id?: string
