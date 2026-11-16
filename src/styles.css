@@ -64,53 +64,55 @@
 }
 
 :root {
+  /* Colour-wheel position of the site colour; 355 = pink. Users can change it on their profile. */
+  --hue: 355;
   --radius: 1rem;
-  --background: oklch(0.972 0.018 355);
-  --foreground: oklch(0.3 0.08 355);
-  --card: oklch(0.993 0.006 355);
-  --card-foreground: oklch(0.3 0.08 355);
-  --popover: oklch(0.993 0.006 355);
-  --popover-foreground: oklch(0.3 0.08 355);
-  --primary: oklch(0.64 0.21 358);
-  --primary-foreground: oklch(0.99 0.005 355);
-  --primary-glow: oklch(0.8 0.13 352);
-  --secondary: oklch(0.93 0.045 355);
-  --secondary-foreground: oklch(0.36 0.1 358);
-  --muted: oklch(0.945 0.028 355);
-  --muted-foreground: oklch(0.52 0.07 355);
-  --accent: oklch(0.91 0.06 352);
-  --accent-foreground: oklch(0.34 0.1 358);
+  --background: oklch(0.972 0.018 var(--hue));
+  --foreground: oklch(0.3 0.08 var(--hue));
+  --card: oklch(0.993 0.006 var(--hue));
+  --card-foreground: oklch(0.3 0.08 var(--hue));
+  --popover: oklch(0.993 0.006 var(--hue));
+  --popover-foreground: oklch(0.3 0.08 var(--hue));
+  --primary: oklch(0.64 0.21 calc(var(--hue) + 3));
+  --primary-foreground: oklch(0.99 0.005 var(--hue));
+  --primary-glow: oklch(0.8 0.13 calc(var(--hue) - 3));
+  --secondary: oklch(0.93 0.045 var(--hue));
+  --secondary-foreground: oklch(0.36 0.1 calc(var(--hue) + 3));
+  --muted: oklch(0.945 0.028 var(--hue));
+  --muted-foreground: oklch(0.52 0.07 var(--hue));
+  --accent: oklch(0.91 0.06 calc(var(--hue) - 3));
+  --accent-foreground: oklch(0.34 0.1 calc(var(--hue) + 3));
   --destructive: oklch(0.56 0.22 25);
-  --destructive-foreground: oklch(0.99 0.005 355);
+  --destructive-foreground: oklch(0.99 0.005 var(--hue));
   --paper: oklch(0.99 0.01 80);
-  --blush: oklch(0.88 0.07 352);
-  --border: oklch(0.89 0.045 355);
-  --input: oklch(0.88 0.05 355);
-  --ring: oklch(0.7 0.17 358);
-  --chart-1: oklch(0.64 0.21 358);
-  --chart-2: oklch(0.75 0.14 345);
-  --chart-3: oklch(0.55 0.15 5);
-  --chart-4: oklch(0.82 0.1 355);
-  --chart-5: oklch(0.45 0.12 350);
-  --sidebar: oklch(0.96 0.025 355);
-  --sidebar-foreground: oklch(0.3 0.08 355);
-  --sidebar-primary: oklch(0.64 0.21 358);
-  --sidebar-primary-foreground: oklch(0.99 0.005 355);
-  --sidebar-accent: oklch(0.93 0.045 355);
-  --sidebar-accent-foreground: oklch(0.36 0.1 358);
-  --sidebar-border: oklch(0.89 0.045 355);
-  --sidebar-ring: oklch(0.7 0.17 358);
+  --blush: oklch(0.88 0.07 calc(var(--hue) - 3));
+  --border: oklch(0.89 0.045 var(--hue));
+  --input: oklch(0.88 0.05 var(--hue));
+  --ring: oklch(0.7 0.17 calc(var(--hue) + 3));
+  --chart-1: oklch(0.64 0.21 calc(var(--hue) + 3));
+  --chart-2: oklch(0.75 0.14 calc(var(--hue) - 10));
+  --chart-3: oklch(0.55 0.15 calc(var(--hue) + 10));
+  --chart-4: oklch(0.82 0.1 var(--hue));
+  --chart-5: oklch(0.45 0.12 calc(var(--hue) - 5));
+  --sidebar: oklch(0.96 0.025 var(--hue));
+  --sidebar-foreground: oklch(0.3 0.08 var(--hue));
+  --sidebar-primary: oklch(0.64 0.21 calc(var(--hue) + 3));
+  --sidebar-primary-foreground: oklch(0.99 0.005 var(--hue));
+  --sidebar-accent: oklch(0.93 0.045 var(--hue));
+  --sidebar-accent-foreground: oklch(0.36 0.1 calc(var(--hue) + 3));
+  --sidebar-border: oklch(0.89 0.045 var(--hue));
+  --sidebar-ring: oklch(0.7 0.17 calc(var(--hue) + 3));
 
   --gradient-rose: linear-gradient(135deg, var(--primary), var(--primary-glow));
   --gradient-blush: radial-gradient(
       120% 80% at 10% 0%,
-      oklch(0.93 0.06 352 / 0.9),
+      oklch(0.93 0.06 calc(var(--hue) - 3) / 0.9),
       transparent 60%
     ),
-    radial-gradient(90% 70% at 100% 10%, oklch(0.94 0.05 20 / 0.8), transparent 55%),
+    radial-gradient(90% 70% at 100% 10%, oklch(0.94 0.05 calc(var(--hue) + 25) / 0.8), transparent 55%),
     var(--background);
-  --shadow-soft-value: 0 10px 30px -14px oklch(0.55 0.18 358 / 0.35);
-  --shadow-glow-value: 0 12px 34px -10px oklch(0.64 0.21 358 / 0.55);
+  --shadow-soft-value: 0 10px 30px -14px oklch(0.55 0.18 calc(var(--hue) + 3) / 0.35);
+  --shadow-glow-value: 0 12px 34px -10px oklch(0.64 0.21 calc(var(--hue) + 3) / 0.55);
 }
 
 @layer base {
@@ -159,8 +161,8 @@
     to bottom,
     transparent 0,
     transparent 31px,
-    oklch(0.88 0.05 355 / 0.6) 31px,
-    oklch(0.88 0.05 355 / 0.6) 32px
+    oklch(0.88 0.05 var(--hue) / 0.6) 31px,
+    oklch(0.88 0.05 var(--hue) / 0.6) 32px
   );
   line-height: 32px;
 }

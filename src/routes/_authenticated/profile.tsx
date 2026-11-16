@@ -1,23 +1,25 @@
 import { useEffect, useRef, useState } from "react";
 import { createFileRoute } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { Camera, Loader2 } from "lucide-react";
+import { Camera, Check, Loader2, Palette } from "lucide-react";
 import { toast } from "sonner";
 
 import { UserAvatar } from "@/components/UserAvatar";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Slider } from "@/components/ui/slider";
 import { supabase } from "@/integrations/supabase/client";
 import { profileQuery, removeMedia, uploadMedia, validatePhoto } from "@/lib/journal";
+import { applyHue, COLOR_PRESETS, DEFAULT_HUE, normalizeHue, swatchColor } from "@/lib/theme";
 
 export const Route = createFileRoute("/_authenticated/profile")({
   head: () => ({
     meta: [
       { title: "My profile — Aisha's journal" },
-      { name: "description", content: "Update your name and profile picture." },
+      { name: "description", content: "Update your name, profile picture and site colour." },
       { property: "og:title", content: "My profile — Aisha's journal" },
-      { property: "og:description", content: "Update your name and profile picture." },
+      { property: "og:description", content: "Update your name, profile picture and site colour." },
       { property: "og:type", content: "website" },
       { name: "twitter:card", content: "summary" },
     ],
@@ -33,6 +35,27 @@ function ProfilePage() {
   const [busy, setBusy] = useState(false);
   const [uploading, setUploading] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
+  const [hue, setHue] = useState(DEFAULT_HUE);
+
+  useEffect(() => {
+    if (profile) setHue(profile.theme_hue ?? DEFAULT_HUE);
+  }, [profile]);
+
+  async function saveColour(next: number) {
+    const value = normalizeHue(next);
+    setHue(value);
+    applyHue(value);
+    const { error } = await supabase
+      .from("profiles")
+      .update({ theme_hue: value === DEFAULT_HUE ? null : value })
+      .eq("id", user.id);
+    if (error) {
+      toast.error(error.message);
+      applyHue(profile?.theme_hue ?? null);
+      return;
+    }
+    queryClient.invalidateQueries({ queryKey: ["profile", user.id] });
+  }
 
   useEffect(() => {
     if (profile) setName(profile.display_name);
@@ -103,6 +126,65 @@ function ProfilePage() {
             {busy && <Loader2 className="animate-spin" />} Save
           </Button>
         </form>
+      </div>
+
+      <div className="paper-card mt-6 space-y-5 p-6 sm:p-8">
+        <div>
+          <h2 className="flex items-center gap-2 text-2xl font-semibold">
+            <Palette className="h-5 w-5 text-primary" /> Site colour
+          </h2>
+          <p className="mt-1 text-sm text-muted-foreground">
+            Paint your journal any colour you like. Only you see your choice.
+          </p>
+        </div>
+        <div className="grid grid-cols-4 gap-3">
+          {COLOR_PRESETS.map((preset) => {
+            const selected = hue === preset.hue;
+            return (
+              <button
+                key={preset.name}
+                type="button"
+                onClick={() => saveColour(preset.hue)}
+                aria-pressed={selected}
+                className="flex flex-col items-center gap-1.5 rounded-xl p-1 text-xs font-medium text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+              >
+                <span
+                  className="grid h-11 w-11 place-items-center rounded-full border-2 border-card text-primary-foreground shadow-soft"
+                  style={{ background: swatchColor(preset.hue) }}
+                >
+                  {selected && <Check className="h-5 w-5" />}
+                </span>
+                {preset.name}
+              </button>
+            );
+          })}
+        </div>
+        <div className="space-y-2">
+          <Label>Or pick your own shade</Label>
+          <div
+            className="h-3 rounded-full"
+            style={{
+              background: `linear-gradient(to right, ${Array.from({ length: 13 }, (_, i) => swatchColor(i * 30)).join(", ")})`,
+            }}
+          />
+          <Slider
+            min={0}
+            max={359}
+            step={1}
+            value={[hue]}
+            onValueChange={([v = DEFAULT_HUE]) => {
+              setHue(v);
+              applyHue(v);
+            }}
+            onValueCommit={([v = DEFAULT_HUE]) => saveColour(v)}
+            aria-label="Site colour"
+          />
+        </div>
+        {hue !== DEFAULT_HUE && (
+          <Button variant="outline" className="w-full" onClick={() => saveColour(DEFAULT_HUE)}>
+            Back to pink 🩷
+          </Button>
+        )}
       </div>
     </main>
   );

@@ -1,12 +1,28 @@
 import { useMemo, useState } from "react";
-import { useQuery } from "@tanstack/react-query";
-import { Search, ShieldCheck } from "lucide-react";
+import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
+import { toast } from "sonner";
+import { Loader2, Search, ShieldCheck, Trash2 } from "lucide-react";
 
 import { UserAvatar } from "@/components/UserAvatar";
+import {
+  AlertDialog,
+  AlertDialogAction,
+  AlertDialogCancel,
+  AlertDialogContent,
+  AlertDialogDescription,
+  AlertDialogFooter,
+  AlertDialogHeader,
+  AlertDialogTitle,
+  AlertDialogTrigger,
+} from "@/components/ui/alert-dialog";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Skeleton } from "@/components/ui/skeleton";
 import { supabase } from "@/integrations/supabase/client";
+import { deleteUserAccount } from "@/lib/admin.functions";
+import { useAuth } from "@/lib/auth";
 
 const ONLINE_WINDOW_MS = 70 * 60 * 1000; // sessions refresh about every hour while the site is open
 
@@ -30,6 +46,25 @@ function timeAgo(iso: string | null) {
 
 export function AdminUsers() {
   const [search, setSearch] = useState("");
+  const [deleting, setDeleting] = useState<string | null>(null);
+  const { user: me } = useAuth();
+  const queryClient = useQueryClient();
+  const deleteAccount = useServerFn(deleteUserAccount);
+
+  async function remove(id: string, label: string) {
+    setDeleting(id);
+    try {
+      await deleteAccount({ data: { userId: id } });
+      toast.success(`${label}'s account was deleted`);
+      queryClient.invalidateQueries({ queryKey: ["admin-users"] });
+      queryClient.invalidateQueries({ queryKey: ["entries"] });
+      queryClient.invalidateQueries({ queryKey: ["admin-plans"] });
+    } catch (err) {
+      toast.error(err instanceof Error ? err.message : "Couldn't delete the account");
+    } finally {
+      setDeleting(null);
+    }
+  }
   const { data: users, isLoading, error } = useQuery({
     queryKey: ["admin-users"],
     refetchInterval: 60_000,
@@ -83,7 +118,7 @@ export function AdminUsers() {
             const online =
               u.signed_in && !!u.last_active_at && Date.now() - new Date(u.last_active_at).getTime() < ONLINE_WINDOW_MS;
             return (
-              <li key={u.id} className="paper-card flex items-center gap-3 p-4">
+              <li key={u.id} className="paper-card flex flex-wrap items-center gap-3 p-4">
                 <div className="relative shrink-0">
                   <UserAvatar path={u.avatar_path} name={u.display_name || u.email} className="h-11 w-11" />
                   {online && (
@@ -102,9 +137,45 @@ export function AdminUsers() {
                     · active {timeAgo(u.last_active_at)}
                   </p>
                 </div>
-                <Badge variant={u.signed_in ? "default" : "outline"} className="shrink-0">
-                  {online ? "Online" : u.signed_in ? "Signed in" : "Signed out"}
-                </Badge>
+                <div className="flex shrink-0 items-center gap-1">
+                  <Badge variant={u.signed_in ? "default" : "outline"}>
+                    {online ? "Online" : u.signed_in ? "Signed in" : "Signed out"}
+                  </Badge>
+                  {!u.is_admin && u.id !== me?.id && (
+                    <AlertDialog>
+                      <AlertDialogTrigger asChild>
+                        <Button
+                          variant="ghost"
+                          size="icon"
+                          className="text-destructive hover:text-destructive"
+                          aria-label={`Delete ${u.display_name || u.email}'s account`}
+                          disabled={deleting === u.id}
+                        >
+                          {deleting === u.id ? <Loader2 className="animate-spin" /> : <Trash2 />}
+                        </Button>
+                      </AlertDialogTrigger>
+                      <AlertDialogContent>
+                        <AlertDialogHeader>
+                          <AlertDialogTitle>Delete this account?</AlertDialogTitle>
+                          <AlertDialogDescription>
+                            {u.display_name || u.email} will be signed out and can no longer log in. All of
+                            their entries, photos, voice notes, calendar plans and bucket list are deleted
+                            forever. This can't be undone.
+                          </AlertDialogDescription>
+                        </AlertDialogHeader>
+                        <AlertDialogFooter>
+                          <AlertDialogCancel>Cancel</AlertDialogCancel>
+                          <AlertDialogAction
+                            onClick={() => remove(u.id, u.display_name || u.email || "This person")}
+                            className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
+                          >
+                            Delete account
+                          </AlertDialogAction>
+                        </AlertDialogFooter>
+                      </AlertDialogContent>
+                    </AlertDialog>
+                  )}
+                </div>
               </li>
             );
           })}

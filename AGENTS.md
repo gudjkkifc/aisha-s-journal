@@ -35,3 +35,5 @@ use the editor.
 - Admin status lives only in `public.user_roles` and is checked with `has_role()`; why: prevents privilege escalation via editable profile data.
 - Photos and avatars live in the private `journal-media` bucket under `<user_id>/...` and are shown via signed URLs; why: storage policies key on the first folder segment.
 - Signed-in pages live under `src/routes/_authenticated/`; auth state comes from the single `AuthProvider` in `src/lib/auth.tsx`; why: one auth listener, one gate.
+- Admin account deletion runs in a `requireSupabaseAuth` server function that checks `has_role()` before using the service-role client; why: deleting logins needs admin auth APIs that must never reach the browser.
+- Site colour is one `--hue` CSS variable on `<html>` that every theme token derives from, saved per user on `profiles.theme_hue`; why: one value re-tints the whole design system.

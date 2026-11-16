@@ -1,3 +1,4 @@
+import { useEffect } from "react";
 import { Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { BookHeart, CalendarDays, ListChecks, LogOut, ShieldCheck, UserRound } from "lucide-react";
@@ -15,6 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useIsAdmin, useSignOut } from "@/lib/auth";
 import { profileQuery } from "@/lib/journal";
+import { applyHue, journalOwner } from "@/lib/theme";
 
 export function SiteHeader() {
   const { user, loading } = useAuth();
@@ -24,14 +26,25 @@ export function SiteHeader() {
     ...profileQuery(user?.id ?? ""),
     enabled: !!user,
   });
+  const ownerName = journalOwner(
+    profile?.display_name || (user?.user_metadata?.["display_name"] as string | undefined),
+    !!user,
+  );
+
+  // Each person's chosen site colour follows them; signed-out visitors see the default pink.
+  useEffect(() => {
+    if (loading) return;
+    if (!user) applyHue(null);
+    else if (profile) applyHue(profile.theme_hue);
+  }, [loading, user, profile]);
 
   return (
     <header className="sticky top-0 z-40 border-b border-border/70 bg-background/80 backdrop-blur-md">
       <div className="mx-auto flex h-16 max-w-5xl items-center justify-between gap-3 px-4">
-        <Link to="/" className="flex items-center gap-2">
+        <Link to="/" className="flex min-w-0 items-center gap-2">
           <Heart className="h-7 w-7 text-primary" />
-          <span className="font-display text-xl font-semibold tracking-tight">
-            Aisha's <span className="font-script text-2xl text-primary">journal</span>
+          <span className="truncate pr-2 font-display text-xl font-semibold tracking-tight">
+            {ownerName} <span className="font-script text-2xl text-primary">journal</span>
           </span>
         </Link>
 

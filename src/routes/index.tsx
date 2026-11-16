@@ -1,10 +1,13 @@
 import { createFileRoute, Link } from "@tanstack/react-router";
+import { useQuery } from "@tanstack/react-query";
 import { Camera, Lock, PenLine } from "lucide-react";
 
 import heroImage from "@/assets/journal-hero.jpg";
 import { Heart } from "@/components/Heart";
 import { Button } from "@/components/ui/button";
 import { useAuth } from "@/lib/auth";
+import { profileQuery } from "@/lib/journal";
+import { journalOwner } from "@/lib/theme";
 
 export const Route = createFileRoute("/")({
   head: () => ({
@@ -28,6 +31,11 @@ export const Route = createFileRoute("/")({
 
 function Index() {
   const { user } = useAuth();
+  const { data: profile } = useQuery({ ...profileQuery(user?.id ?? ""), enabled: !!user });
+  const ownerName = journalOwner(
+    profile?.display_name || (user?.user_metadata?.["display_name"] as string | undefined),
+    !!user,
+  );
 
   return (
     <main className="mx-auto max-w-5xl px-4 pb-20">
@@ -37,7 +45,7 @@ function Index() {
             <Heart className="h-3.5 w-3.5 text-primary" /> Dear diary, today…
           </span>
           <h1 className="text-5xl font-semibold leading-[1.05] sm:text-6xl">
-            Aisha's{" "}
+            {ownerName}{" "}
             <span className="font-script text-6xl text-primary sm:text-7xl">journal</span>
           </h1>
           <p className="max-w-md text-lg text-muted-foreground">

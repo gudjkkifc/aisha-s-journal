@@ -36,6 +36,13 @@
       "when": 1794729896703,
       "tag": "0004_voice_notes_calendar_bucket_list",
       "breakpoints": true
+    },
+    {
+      "idx": 5,
+      "version": "7",
+      "when": 1794828167432,
+      "tag": "0005_profile_theme_hue",
+      "breakpoints": true
     }
   ]
 }
