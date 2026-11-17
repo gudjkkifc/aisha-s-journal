@@ -60,6 +60,16 @@ export function formatEventTime(time: string | null): string {
   return format(new Date(2000, 0, 1, Number(h), Number(m)), "p");
 }
 
+/** Hour a plan without a time rings on its day. */
+export const DEFAULT_REMINDER_HOUR = 9;
+
+/** When a plan's phone alarm rings: at its time, or 9:00 on the day when no time is set (in the phone's own time zone). */
+export function planReminderAt(day: string, time: string | null | undefined): Date {
+  const [y = 0, m = 1, d = 1] = day.split("-").map(Number);
+  const [h = DEFAULT_REMINDER_HOUR, min = 0] = time ? time.split(":").map(Number) : [];
+  return new Date(y, m - 1, d, h, min, 0, 0);
+}
+
 /** Plans from today onward, soonest first. */
 export function upcomingEvents(events: CalendarEvent[], today: string, limit = 5) {
   return events

@@ -1,9 +1,10 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, redirect } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
-import { BookHeart, Camera, ListChecks, Search, ShieldCheck, Trash2, Users } from "lucide-react";
+import { BookHeart, Camera, ListChecks, Megaphone, Search, ShieldCheck, Trash2, Users } from "lucide-react";
 import { toast } from "sonner";
 
+import { AdminAnnouncements } from "@/components/AdminAnnouncements";
 import { AdminPlans } from "@/components/AdminPlans";
 import { AdminUsers } from "@/components/AdminUsers";
 import { PhotoGrid } from "@/components/PhotoGrid";
@@ -121,7 +122,14 @@ function AdminPage() {
           <TabsTrigger value="plans" className="rounded-full px-4">
             <ListChecks /> Plans &amp; lists
           </TabsTrigger>
+          <TabsTrigger value="announcements" className="rounded-full px-4">
+            <Megaphone /> Announcements
+          </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="announcements">
+          <AdminAnnouncements />
+        </TabsContent>
 
         <TabsContent value="plans">
           <AdminPlans />

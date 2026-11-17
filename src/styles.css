@@ -87,6 +87,7 @@
   --paper: oklch(0.99 0.01 80);
   --blush: oklch(0.88 0.07 calc(var(--hue) - 3));
   --border: oklch(0.89 0.045 var(--hue));
+  --rule: oklch(0.88 0.05 var(--hue) / 0.6);
   --input: oklch(0.88 0.05 var(--hue));
   --ring: oklch(0.7 0.17 calc(var(--hue) + 3));
   --chart-1: oklch(0.64 0.21 calc(var(--hue) + 3));
@@ -113,6 +114,48 @@
     var(--background);
   --shadow-soft-value: 0 10px 30px -14px oklch(0.55 0.18 calc(var(--hue) + 3) / 0.35);
   --shadow-glow-value: 0 12px 34px -10px oklch(0.64 0.21 calc(var(--hue) + 3) / 0.55);
+}
+
+/* Black site: near-black paper with the chosen colour as accents. */
+.dark {
+  --background: oklch(0.16 0.012 var(--hue));
+  --foreground: oklch(0.94 0.015 var(--hue));
+  --card: oklch(0.205 0.014 var(--hue));
+  --card-foreground: oklch(0.94 0.015 var(--hue));
+  --popover: oklch(0.205 0.014 var(--hue));
+  --popover-foreground: oklch(0.94 0.015 var(--hue));
+  --primary: oklch(0.68 0.17 calc(var(--hue) + 3));
+  --primary-foreground: oklch(0.15 0.01 var(--hue));
+  --primary-glow: oklch(0.55 0.14 calc(var(--hue) - 3));
+  --secondary: oklch(0.26 0.02 var(--hue));
+  --secondary-foreground: oklch(0.9 0.03 var(--hue));
+  --muted: oklch(0.24 0.015 var(--hue));
+  --muted-foreground: oklch(0.7 0.03 var(--hue));
+  --accent: oklch(0.3 0.04 calc(var(--hue) - 3));
+  --accent-foreground: oklch(0.94 0.02 var(--hue));
+  --destructive: oklch(0.62 0.2 25);
+  --destructive-foreground: oklch(0.98 0.005 var(--hue));
+  --paper: oklch(0.19 0.012 var(--hue));
+  --blush: oklch(0.36 0.07 calc(var(--hue) - 3));
+  --border: oklch(0.3 0.02 var(--hue));
+  --rule: oklch(0.32 0.025 var(--hue) / 0.8);
+  --input: oklch(0.32 0.02 var(--hue));
+  --ring: oklch(0.62 0.15 calc(var(--hue) + 3));
+  --sidebar: oklch(0.18 0.012 var(--hue));
+  --sidebar-foreground: oklch(0.94 0.015 var(--hue));
+  --sidebar-accent: oklch(0.26 0.02 var(--hue));
+  --sidebar-accent-foreground: oklch(0.9 0.03 var(--hue));
+  --sidebar-border: oklch(0.3 0.02 var(--hue));
+  --gradient-blush: radial-gradient(
+      120% 80% at 10% 0%,
+      oklch(0.24 0.04 calc(var(--hue) - 3) / 0.9),
+      transparent 60%
+    ),
+    radial-gradient(90% 70% at 100% 10%, oklch(0.22 0.03 calc(var(--hue) + 25) / 0.8), transparent 55%),
+    var(--background);
+  --shadow-soft-value: 0 10px 30px -14px oklch(0 0 0 / 0.6);
+  --shadow-glow-value: 0 12px 34px -10px oklch(0.6 0.16 calc(var(--hue) + 3) / 0.45);
+  color-scheme: dark;
 }
 
 @layer base {
@@ -161,8 +204,8 @@
     to bottom,
     transparent 0,
     transparent 31px,
-    oklch(0.88 0.05 var(--hue) / 0.6) 31px,
-    oklch(0.88 0.05 var(--hue) / 0.6) 32px
+    var(--rule) 31px,
+    var(--rule) 32px
   );
   line-height: 32px;
 }

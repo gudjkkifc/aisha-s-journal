@@ -1,6 +1,7 @@
 import { useMemo, useState } from "react";
 import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery, useQueryClient } from "@tanstack/react-query";
+import { useServerFn } from "@tanstack/react-start";
 import { addMonths, format, isSameMonth, parseISO, subMonths } from "date-fns";
 import { CalendarPlus, ChevronLeft, ChevronRight, Clock, Loader2, Mic, PenLine, Trash2 } from "lucide-react";
 import { toast } from "sonner";
@@ -10,12 +11,14 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { supabase } from "@/integrations/supabase/client";
 import { myEntriesQuery, type Entry } from "@/lib/journal";
+import { cancelPlanReminder, schedulePlanReminder } from "@/lib/notifications.functions";
 import {
   dayKey,
   formatEventTime,
   groupByDay,
   monthGrid,
   myEventsQuery,
+  planReminderAt,
   upcomingEvents,
   type CalendarEvent,
 } from "@/lib/plans";
@@ -200,6 +203,8 @@ function DayPanel({
   const [time, setTime] = useState("");
   const [notes, setNotes] = useState("");
   const [saving, setSaving] = useState(false);
+  const scheduleReminder = useServerFn(schedulePlanReminder);
+  const cancelReminder = useServerFn(cancelPlanReminder);
 
   async function addPlan(e: React.FormEvent) {
     e.preventDefault();
@@ -208,13 +213,18 @@ function DayPanel({
       return;
     }
     setSaving(true);
-    const { error } = await supabase.from("calendar_events").insert({
-      user_id: userId,
-      title: title.trim(),
-      notes: notes.trim(),
-      event_date: day,
-      event_time: time || null,
-    });
+    const { data: created, error } = await supabase
+      .from("calendar_events")
+      .insert({
+        user_id: userId,
+        title: title.trim(),
+        notes: notes.trim(),
+        event_date: day,
+        event_time: time || null,
+        remind_at: planReminderAt(day, time || null).toISOString(),
+      })
+      .select("id")
+      .single();
     setSaving(false);
     if (error) {
       toast.error(error.message);
@@ -225,9 +235,12 @@ function DayPanel({
     setNotes("");
     queryClient.invalidateQueries({ queryKey: ["calendar-events"] });
     toast.success("Plan added 🩷");
+    // The phone alarm is a bonus: the plan is saved even if this fails.
+    scheduleReminder({ data: { eventId: created.id } }).catch((err) => console.warn("Reminder not scheduled", err));
   }
 
   async function removePlan(id: string) {
+    await cancelReminder({ data: { eventId: id } }).catch(() => {});
     const { error } = await supabase.from("calendar_events").delete().eq("id", id);
     if (error) {
       toast.error(error.message);

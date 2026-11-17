@@ -4,6 +4,7 @@ import { useQuery, useQueryClient } from "@tanstack/react-query";
 import { useNavigate, useRouter } from "@tanstack/react-router";
 
 import { supabase } from "@/integrations/supabase/client";
+import { pushLogin, pushLogout } from "@/lib/median";
 
 type AuthState = { session: Session | null; user: User | null; loading: boolean };
 
@@ -17,12 +18,16 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   useEffect(() => {
     const { data } = supabase.auth.onAuthStateChange((event, session) => {
       setState({ session, user: session?.user ?? null, loading: false });
+      if (event === "SIGNED_IN" && session) void pushLogin(session.user.id);
+      if (event === "SIGNED_OUT") void pushLogout();
       if (event !== "SIGNED_IN" && event !== "SIGNED_OUT" && event !== "USER_UPDATED") return;
       router.invalidate();
       if (event !== "SIGNED_OUT") queryClient.invalidateQueries();
     });
     supabase.auth.getSession().then(({ data: { session } }) => {
       setState({ session, user: session?.user ?? null, loading: false });
+      // Lets phone notifications find this person in the Android app.
+      if (session) void pushLogin(session.user.id);
     });
     return () => data.subscription.unsubscribe();
   }, [router, queryClient]);
@@ -56,6 +61,7 @@ export function useSignOut() {
   return async () => {
     await queryClient.cancelQueries();
     queryClient.clear();
+    await pushLogout();
     await supabase.auth.signOut();
     navigate({ to: "/auth", search: {}, replace: true });
   };

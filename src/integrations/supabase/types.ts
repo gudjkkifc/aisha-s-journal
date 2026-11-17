@@ -14,6 +14,33 @@ export type Database = {
   }
   public: {
     Tables: {
+      announcements: {
+        Row: {
+          body: string
+          created_at: string
+          created_by: string
+          id: string
+          kind: string
+          title: string
+        }
+        Insert: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          title: string
+        }
+        Update: {
+          body?: string
+          created_at?: string
+          created_by?: string
+          id?: string
+          kind?: string
+          title?: string
+        }
+        Relationships: []
+      }
       bucket_items: {
         Row: {
           created_at: string
@@ -59,6 +86,9 @@ export type Database = {
           event_time: string | null
           id: string
           notes: string
+          remind_at: string | null
+          reminded_at: string | null
+          reminder_push_id: string | null
           title: string
           updated_at: string
           user_id: string
@@ -69,6 +99,9 @@ export type Database = {
           event_time?: string | null
           id?: string
           notes?: string
+          remind_at?: string | null
+          reminded_at?: string | null
+          reminder_push_id?: string | null
           title: string
           updated_at?: string
           user_id: string
@@ -79,6 +112,9 @@ export type Database = {
           event_time?: string | null
           id?: string
           notes?: string
+          remind_at?: string | null
+          reminded_at?: string | null
+          reminder_push_id?: string | null
           title?: string
           updated_at?: string
           user_id?: string
@@ -180,7 +216,9 @@ export type Database = {
           avatar_path: string | null
           created_at: string
           display_name: string
+          gender: string | null
           id: string
+          theme_dark: boolean
           theme_hue: number | null
           updated_at: string
         }
@@ -188,7 +226,9 @@ export type Database = {
           avatar_path?: string | null
           created_at?: string
           display_name?: string
+          gender?: string | null
           id: string
+          theme_dark?: boolean
           theme_hue?: number | null
           updated_at?: string
         }
@@ -196,7 +236,9 @@ export type Database = {
           avatar_path?: string | null
           created_at?: string
           display_name?: string
+          gender?: string | null
           id?: string
+          theme_dark?: boolean
           theme_hue?: number | null
           updated_at?: string
         }

@@ -45,6 +45,7 @@ function AuthPage() {
   const { user } = useAuth();
   const [mode, setMode] = useState<Mode>(search.mode ?? "signin");
   const [name, setName] = useState("");
+  const [gender, setGender] = useState<"female" | "male" | "">("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [busy, setBusy] = useState(false);
@@ -60,12 +61,16 @@ function AuthPage() {
     setBusy(true);
     try {
       if (mode === "signup") {
+        if (!gender) {
+          toast.error("Please choose female or male.");
+          return;
+        }
         const { data, error } = await supabase.auth.signUp({
           email,
           password,
           options: {
             emailRedirectTo: window.location.origin + "/journal",
-            data: { display_name: name.trim() },
+            data: { display_name: name.trim(), gender },
           },
         });
         if (error) throw error;
@@ -131,6 +136,32 @@ function AuthPage() {
               <Label htmlFor="name">Your name</Label>
               <Input id="name" value={name} onChange={(e) => setName(e.target.value)} maxLength={60} required placeholder="Aisha" />
             </div>
+          )}
+          {mode === "signup" && (
+            <fieldset className="space-y-1.5">
+              <legend className="text-sm font-medium">I am</legend>
+              <div className="grid grid-cols-2 gap-2">
+                {(
+                  [
+                    { value: "female", label: "👑 Female" },
+                    { value: "male", label: "🤴 Male" },
+                  ] as const
+                ).map((o) => (
+                  <button
+                    key={o.value}
+                    type="button"
+                    onClick={() => setGender(o.value)}
+                    aria-pressed={gender === o.value}
+                    className={
+                      "rounded-xl border-2 px-3 py-2 text-sm font-semibold transition " +
+                      (gender === o.value ? "border-primary bg-accent text-accent-foreground" : "border-border bg-card hover:bg-secondary")
+                    }
+                  >
+                    {o.label}
+                  </button>
+                ))}
+              </div>
+            </fieldset>
           )}
           <div className="space-y-1.5">
             <Label htmlFor="email">Email</Label>

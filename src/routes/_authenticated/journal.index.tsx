@@ -2,6 +2,7 @@ import { createFileRoute, Link } from "@tanstack/react-router";
 import { useQuery } from "@tanstack/react-query";
 import { CalendarDays, Camera, ListChecks, Mic, PenLine } from "lucide-react";
 
+import { AnnouncementsBanner } from "@/components/AnnouncementsBanner";
 import { Heart } from "@/components/Heart";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -55,6 +56,8 @@ function JournalList() {
           </Button>
         </div>
       </div>
+
+      <AnnouncementsBanner />
 
       {isLoading ? (
         <div className="space-y-4">

@@ -1,6 +1,23 @@
 /** Site colour: everything on the site is tinted from one colour-wheel position (hue). */
 export const DEFAULT_HUE = 355; // pink
 export const HUE_STORAGE_KEY = "journal-hue";
+export const DARK_STORAGE_KEY = "journal-dark";
+/** Blue touches used on the black site that male users start with. */
+export const MALE_START_HUE = 230;
+
+export type Gender = "female" | "male";
+
+/** Starting look for a new person: women keep the pink site, men get the black site. Both can change it later. */
+export function startingTheme(gender: Gender): { theme_hue: number | null; theme_dark: boolean } {
+  return gender === "male" ? { theme_hue: MALE_START_HUE, theme_dark: true } : { theme_hue: null, theme_dark: false };
+}
+
+/** The spoken greeting played every time someone opens the site. */
+export function greetingFor(gender: Gender | null | undefined): { text: string; audio: string } {
+  return gender === "male"
+    ? { text: "Hello king, tell me how your day has been", audio: "/audio/greeting-king.mp3" }
+    : { text: "Hey queen, tell me how your day has been", audio: "/audio/greeting-queen.mp3" };
+}
 
 export const COLOR_PRESETS: { name: string; hue: number }[] = [
   { name: "Pink", hue: 355 },
@@ -42,8 +59,20 @@ export function applyHue(hue: number | null | undefined) {
   }
 }
 
+/** Switches the black (dark) site background on or off and remembers it for the next visit. */
+export function applyDark(dark: boolean | null | undefined) {
+  if (typeof document === "undefined") return;
+  document.documentElement.classList.toggle("dark", !!dark);
+  try {
+    if (dark) localStorage.setItem(DARK_STORAGE_KEY, "1");
+    else localStorage.removeItem(DARK_STORAGE_KEY);
+  } catch {
+    /* storage blocked */
+  }
+}
+
 /** Runs before the page paints so a returning visitor doesn't see pink flash first. */
-export const EARLY_HUE_SCRIPT = `try{var h=localStorage.getItem("${HUE_STORAGE_KEY}");if(h!==null&&/^\\d{1,3}$/.test(h))document.documentElement.style.setProperty("--hue",h)}catch(e){}`;
+export const EARLY_HUE_SCRIPT = `try{var h=localStorage.getItem("${HUE_STORAGE_KEY}");if(h!==null&&/^\\d{1,3}$/.test(h))document.documentElement.style.setProperty("--hue",h);if(localStorage.getItem("${DARK_STORAGE_KEY}")==="1")document.documentElement.classList.add("dark")}catch(e){}`;
 
 /** CSS colour for a swatch of the given hue (matches the site's main colour). */
 export function swatchColor(hue: number) {

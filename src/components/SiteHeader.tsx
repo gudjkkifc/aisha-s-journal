@@ -16,7 +16,7 @@ import {
 } from "@/components/ui/dropdown-menu";
 import { useAuth, useIsAdmin, useSignOut } from "@/lib/auth";
 import { profileQuery } from "@/lib/journal";
-import { applyHue, journalOwner } from "@/lib/theme";
+import { applyDark, applyHue, journalOwner } from "@/lib/theme";
 
 export function SiteHeader() {
   const { user, loading } = useAuth();
@@ -34,8 +34,13 @@ export function SiteHeader() {
   // Each person's chosen site colour follows them; signed-out visitors see the default pink.
   useEffect(() => {
     if (loading) return;
-    if (!user) applyHue(null);
-    else if (profile) applyHue(profile.theme_hue);
+    if (!user) {
+      applyHue(null);
+      applyDark(false);
+    } else if (profile) {
+      applyHue(profile.theme_hue);
+      applyDark(profile.theme_dark);
+    }
   }, [loading, user, profile]);
 
   return (
